@@ -16,6 +16,10 @@ import java.util.Map;
  */
 public interface Sardine
 {
+	void abort();
+
+    boolean isAborted();
+    
 	/**
 	 * Add credentials to any scope.
 	 *

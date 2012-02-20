@@ -26,10 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import javax.xml.namespace.QName;
 import de.aflx.sardine.util.QName;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 //import org.apache.http.HttpHeaders;
 import org.apache.http.HttpException;
@@ -39,7 +37,6 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.AuthState;
 import org.apache.http.auth.Credentials;
@@ -54,7 +51,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 //import org.apache.http.client.protocol.RequestAcceptEncoding;
@@ -76,7 +72,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -85,7 +80,6 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
-import org.simpleframework.xml.Element;
 
 import de.aflx.sardine.DavResource;
 import de.aflx.sardine.Sardine;
@@ -100,7 +94,6 @@ import de.aflx.sardine.impl.methods.HttpLock;
 import de.aflx.sardine.impl.methods.HttpMkCol;
 import de.aflx.sardine.impl.methods.HttpMove;
 import de.aflx.sardine.impl.methods.HttpPropFind;
-import de.aflx.sardine.impl.methods.HttpPropPatch;
 import de.aflx.sardine.impl.methods.HttpUnlock;
 import de.aflx.sardine.model.Allprop;
 import de.aflx.sardine.model.Exclusive;
@@ -108,12 +101,8 @@ import de.aflx.sardine.model.Lockinfo;
 import de.aflx.sardine.model.Lockscope;
 import de.aflx.sardine.model.Locktype;
 import de.aflx.sardine.model.Multistatus;
-import de.aflx.sardine.model.Prop;
-import de.aflx.sardine.model.Propertyupdate;
 import de.aflx.sardine.model.Propfind;
-import de.aflx.sardine.model.Remove;
 import de.aflx.sardine.model.Response;
-import de.aflx.sardine.model.Set;
 import de.aflx.sardine.model.Write;
 import de.aflx.sardine.util.Logger;
 import de.aflx.sardine.util.SardineUtil;
@@ -130,6 +119,9 @@ public class SardineImpl implements Sardine {
 
 	private static final String UTF_8 = "UTF-8";
 
+	protected HttpRequestBase _currentRequest;
+	protected boolean _isAborted = false;
+	
 	/**
 	 * HTTP Implementation
 	 */
@@ -251,6 +243,19 @@ public class SardineImpl implements Sardine {
 		log.warn("init");
 	}
 
+	public HttpRequestBase getCurrentRequest() {
+		return _currentRequest;
+	}
+	
+	public void abort() {
+		_isAborted = true;
+		_currentRequest.abort();
+	}
+	
+	public boolean isAborted() {
+		return _isAborted;
+	}
+	
 	/**
 	 * Add credentials to any scope. Supports Basic, Digest and NTLM
 	 * authentication methods.
@@ -655,7 +660,11 @@ public class SardineImpl implements Sardine {
 	 */
 	public void put(String url, HttpEntity entity, Map<String, String> headers)
 			throws IOException {
+		
 		HttpPut put = new HttpPut(url);
+		_currentRequest = put;
+		_isAborted = false;
+		
 		put.setEntity(entity);
 		for (String header : headers.keySet()) {
 			put.addHeader(header, headers.get(header));
@@ -674,6 +683,7 @@ public class SardineImpl implements Sardine {
 					return;
 				}
 			}
+			
 			throw e;
 		}
 	}
