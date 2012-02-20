@@ -1,3 +1,5 @@
-bin/
-gen/
-libs/
+/bin/*
+/bin
+/gen/*
+/coverage.em
+/libs/
