@@ -16,15 +16,14 @@
 
 package de.aflx.sardine.impl.handler;
 
-import de.aflx.sardine.impl.SardineException;
-import de.aflx.sardine.model.Prop;
-import de.aflx.sardine.util.SardineUtil;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
-import java.io.IOException;
-import java.io.InputStream;
+import de.aflx.sardine.impl.SardineException;
 
 /**
  * @version $Id: LockResponseHandler.java 276 2011-06-28 08:13:28Z dkocher@sudo.ch $

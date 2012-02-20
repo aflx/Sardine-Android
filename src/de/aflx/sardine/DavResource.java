@@ -11,26 +11,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-//import javax.xml.namespace.QName;
-import de.aflx.sardine.util.QName;
-
-import org.w3c.dom.Element;
-
 import de.aflx.sardine.model.Collection;
-import de.aflx.sardine.model.Creationdate;
 import de.aflx.sardine.model.Getcontentlength;
 import de.aflx.sardine.model.Getcontenttype;
-import de.aflx.sardine.model.Getetag;
-import de.aflx.sardine.model.Getlastmodified;
 import de.aflx.sardine.model.Multistatus;
-import de.aflx.sardine.model.Prop;
 import de.aflx.sardine.model.Propstat;
-import de.aflx.sardine.model.Resourcetype;
 import de.aflx.sardine.model.Response;
 import de.aflx.sardine.util.Logger;
+import de.aflx.sardine.util.QName;
 import de.aflx.sardine.util.SardineUtil;
 
 /**
