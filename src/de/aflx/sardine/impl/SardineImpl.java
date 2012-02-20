@@ -26,7 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
+//import javax.xml.namespace.QName;
+import de.aflx.sardine.util.QName;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -521,7 +522,7 @@ public class SardineImpl implements Sardine {
 	 * 
 	 * @see de.aflx.sardine.Sardine#get(java.lang.String)
 	 */
-	public InputStream get(String url) throws IOException {
+	public ConsumingInputStream get(String url) throws IOException {
 		return this.get(url, Collections.<String, String> emptyMap());
 	}
 
@@ -530,7 +531,7 @@ public class SardineImpl implements Sardine {
 	 * 
 	 * @see de.aflx.sardine.Sardine#get(java.lang.String, java.util.Map)
 	 */
-	public InputStream get(String url, Map<String, String> headers)
+	public ConsumingInputStream get(String url, Map<String, String> headers)
 			throws IOException {
 		HttpGet get = new HttpGet(url);
 		for (String header : headers.keySet()) {

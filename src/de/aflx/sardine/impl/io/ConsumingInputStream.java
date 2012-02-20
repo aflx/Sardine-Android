@@ -18,7 +18,6 @@ package de.aflx.sardine.impl.io;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +46,10 @@ public class ConsumingInputStream extends InputStream
 		this.delegate = entity.getContent();
 	}
 
+	public long getContentLength() {
+		return this.response.getEntity().getContentLength();
+	}
+	
 	@Override
 	public int read(byte[] b) throws IOException
 	{

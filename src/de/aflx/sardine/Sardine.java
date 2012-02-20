@@ -1,6 +1,8 @@
 package de.aflx.sardine;
 
-import javax.xml.namespace.QName;
+//import javax.xml.namespace.QName;
+import de.aflx.sardine.impl.io.ConsumingInputStream;
+import de.aflx.sardine.util.QName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -89,7 +91,7 @@ public interface Sardine
 	 * @return Data stream to read from
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	InputStream get(String url) throws IOException;
+	ConsumingInputStream get(String url) throws IOException;
 
 	/**
 	 * Uses HTTP <code>GET</code> to download data from a server. The stream must be closed after reading.
@@ -99,7 +101,7 @@ public interface Sardine
 	 * @return Data stream to read from
 	 * @throws IOException I/O error or HTTP response validation failure
 	 */
-	InputStream get(String url, Map<String, String> headers) throws IOException;
+	ConsumingInputStream get(String url, Map<String, String> headers) throws IOException;
 
 	/**
 	 * Uses HTTP <code>PUT</code> to send data to a server. Repeatable on authentication failure.
