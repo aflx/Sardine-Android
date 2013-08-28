@@ -215,13 +215,24 @@ public class DavResource
 	 */
 	private long getContentLength(Response response)
 	{
-//		Propstat list = response.getPropstat();
-//		if(list.equals("") || null == list) {
-//			return null;
-//		}
-//		Getcontentlength gcl = list.getProp().ge;
+
+		Propstat list = response.getPropstat();
+		if(list.equals("") || null == list) {
+			return DEFAULT_CONTENT_LENGTH;
+		}
 		
-		return -1;
+		String gcl = list.getProp().getGetcontentlength();
+        if ((gcl != null) && (!gcl.isEmpty()))
+        {
+            try
+            {
+                return Long.parseLong(gcl);
+            } catch (NumberFormatException e)
+            {
+                log.warn(String.format("Failed to parse content length %s", gcl));
+            }
+        }
+		return DEFAULT_CONTENT_LENGTH;
 		/*List<Propstat> list = response.getPropstat();
 		if (list.isEmpty()) {
 			return DEFAULT_CONTENT_LENGTH;
