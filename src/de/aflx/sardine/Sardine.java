@@ -3,6 +3,8 @@ package de.aflx.sardine;
 //import javax.xml.namespace.QName;
 import de.aflx.sardine.impl.io.ConsumingInputStream;
 import de.aflx.sardine.util.QName;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -184,6 +186,19 @@ public interface Sardine
 	void put(String url, InputStream dataStream, Map<String, String> headers) throws IOException;
 
 	/**
+	 * Uses <code>PUT</code> to send data to a server with a specific content
+	 * type header. Not repeatable on authentication failure.
+	 *
+	 * @param url		 Path to the resource including protocol and hostname
+	 * @param dataStream  Input source
+	 * @param contentType MIME type to add to the HTTP request header
+	 * @param length length of the stream
+	 * @throws IOException I/O error or HTTP response validation failure
+	 */
+	void put(String url, File dataStream, int length, String contentType)
+			throws IOException;
+
+	/**
 	 * Delete a resource using HTTP <code>DELETE</code> at the specified url
 	 *
 	 * @param url Path to the resource including protocol and hostname
@@ -286,5 +301,6 @@ public interface Sardine
 	 * Disable preemptive authentication.
 	 */
 	void disablePreemptiveAuthentication();
+
 
 }
