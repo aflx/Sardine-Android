@@ -92,10 +92,6 @@ public class Prop {
 		return getcontentlength;
 	}
 
-	public void setGetcontentlength(String getcontentlength) {
-		this.getcontentlength = getcontentlength;
-	}
-
 
 	/*protected Creationdate creationdate;
     protected Displayname displayname;

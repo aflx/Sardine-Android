@@ -95,15 +95,11 @@ import de.aflx.sardine.impl.methods.HttpMkCol;
 import de.aflx.sardine.impl.methods.HttpMove;
 import de.aflx.sardine.impl.methods.HttpPropFind;
 import de.aflx.sardine.impl.methods.HttpUnlock;
-import de.aflx.sardine.model.Allprop;
 import de.aflx.sardine.model.Exclusive;
 import de.aflx.sardine.model.Lockinfo;
 import de.aflx.sardine.model.Lockscope;
 import de.aflx.sardine.model.Locktype;
 import de.aflx.sardine.model.Multistatus;
-import de.aflx.sardine.model.ObjectFactory;
-import de.aflx.sardine.model.Prop;
-import de.aflx.sardine.model.Propfind;
 import de.aflx.sardine.model.Response;
 import de.aflx.sardine.model.Write;
 import de.aflx.sardine.util.Logger;
@@ -404,7 +400,7 @@ public class SardineImpl implements Sardine {
 		log.warn("list");
 		HttpPropFind entity = new HttpPropFind(url);
 		entity.setDepth(Integer.toString(depth));
-		Propfind body = new Propfind();
+//		Propfind body = new Propfind();
 		if (allProp)
 			entity.setEntity(new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\">  <D:allprop/></D:propfind>", UTF_8));
 		else 
