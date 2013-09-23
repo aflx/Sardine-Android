@@ -866,6 +866,7 @@ public class SardineImpl implements Sardine {
 
 		HttpConnectionParams.setTcpNoDelay(params, true);
 		HttpConnectionParams.setSocketBufferSize(params, 8192);
+		HttpConnectionParams.setConnectionTimeout(params, 10*1000); //10 seconds
 		return params;
 	}
 
