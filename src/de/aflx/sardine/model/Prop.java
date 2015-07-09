@@ -57,14 +57,16 @@ public class Prop {
 
 	@Element
 	private Resourcetype resourcetype;
-	@Element
+	@Element (required = false)
 	private String creationdate;
-	@Element
+	@Element (required = false)
 	private String getlastmodified;
-	@Element
+	@Element (required = false)
 	private String getetag;
 	@Element (required = false)
 	private String getcontenttype;
+	@Element (required = false)
+	private String getcontentlength;
 	
 	public Resourcetype getResourcetype() {
 		return resourcetype;
@@ -85,9 +87,13 @@ public class Prop {
 	public String getGetcontenttype() {
 		return getcontenttype;
 	}
-
 	
-    /*protected Creationdate creationdate;
+    public String getGetcontentlength() {
+		return getcontentlength;
+	}
+
+
+	/*protected Creationdate creationdate;
     protected Displayname displayname;
     protected Getcontentlanguage getcontentlanguage;
     protected Getcontentlength getcontentlength;

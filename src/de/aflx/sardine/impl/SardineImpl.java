@@ -16,6 +16,7 @@
 
 package de.aflx.sardine.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProxySelector;
@@ -26,10 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.aflx.sardine.util.QName;
-
 import org.apache.http.HttpEntity;
-//import org.apache.http.HttpHeaders;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -42,7 +40,6 @@ import org.apache.http.auth.AuthState;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-//import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
@@ -53,8 +50,6 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
-//import org.apache.http.client.protocol.RequestAcceptEncoding;
-//import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -62,13 +57,12 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.AbstractHttpClient;
-//import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
-//import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
@@ -95,17 +89,22 @@ import de.aflx.sardine.impl.methods.HttpMkCol;
 import de.aflx.sardine.impl.methods.HttpMove;
 import de.aflx.sardine.impl.methods.HttpPropFind;
 import de.aflx.sardine.impl.methods.HttpUnlock;
-import de.aflx.sardine.model.Allprop;
 import de.aflx.sardine.model.Exclusive;
 import de.aflx.sardine.model.Lockinfo;
 import de.aflx.sardine.model.Lockscope;
 import de.aflx.sardine.model.Locktype;
 import de.aflx.sardine.model.Multistatus;
-import de.aflx.sardine.model.Propfind;
 import de.aflx.sardine.model.Response;
 import de.aflx.sardine.model.Write;
 import de.aflx.sardine.util.Logger;
+import de.aflx.sardine.util.QName;
 import de.aflx.sardine.util.SardineUtil;
+//import org.apache.http.HttpHeaders;
+//import org.apache.http.client.AuthCache;
+//import org.apache.http.client.protocol.RequestAcceptEncoding;
+//import org.apache.http.client.protocol.ResponseContentEncoding;
+//import org.apache.http.impl.client.BasicAuthCache;
+//import org.apache.http.impl.client.DefaultRedirectStrategy;
 
 /**
  * Implementation of the Sardine interface. This is where the meat of the
@@ -390,14 +389,25 @@ public class SardineImpl implements Sardine {
 	 * 
 	 * @see de.aflx.sardine.Sardine#list(java.lang.String)
 	 */
-	public List<DavResource> list(String url, int depth) throws IOException {
+	@Override
+	public List<DavResource> list(String url, int depth) throws IOException
+	{
+		return list(url, depth, true);
+	}
+	
+	@Override
+	public List<DavResource> list(String url, int depth, boolean allProp) throws IOException
+	{
 		log.warn("list");
 		HttpPropFind entity = new HttpPropFind(url);
 		entity.setDepth(Integer.toString(depth));
-		Propfind body = new Propfind();
-		body.setAllprop(new Allprop());
+//		Propfind body = new Propfind();
+		if (allProp)
+			entity.setEntity(new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\">  <D:allprop/></D:propfind>", UTF_8));
+		else 
+			entity.setEntity(new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\">  <D:prop> <D:creationdate/><D:displayname/><D:resourcetype/><D:getcontentlength/><D:getlastmodified/>  </D:prop></D:propfind>", UTF_8));
+		
 		// entity.setEntity(new StringEntity(SardineUtil.toXml(body), UTF_8));
-		entity.setEntity(new StringEntity("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\">  <D:allprop/></D:propfind>", UTF_8));
 		Multistatus multistatus = this.execute(entity,
 				new MultiStatusResponseHandler());
 		List<Response> responses = multistatus.getResponse();
@@ -688,6 +698,39 @@ public class SardineImpl implements Sardine {
 		}
 	}
 
+	@Override
+	public void put(String url, File dataStream, int length, String contentType)
+			throws IOException {
+		HttpPut put = new HttpPut(url);
+		FileEntity entity = new FileEntity(dataStream, contentType);
+		
+		put.setEntity(entity);
+		Map<String, String> headers = new HashMap<String, String>();
+		if (contentType != null) {
+			headers.put("Content-Type", contentType);
+		}
+		/*for (String header : headers.keySet()) {
+			put.addHeader(header, headers.get(header));
+		}*/
+		if (!put.containsHeader("Content-Type")) {
+			put.addHeader("Content-Type", HTTP.DEFAULT_CONTENT_TYPE);
+		}
+		try {
+			this.execute(put, new VoidResponseHandler());
+		} catch (HttpResponseException e) {
+			if (e.getStatusCode() == HttpStatus.SC_EXPECTATION_FAILED) {
+				// Retry with the Expect header removed
+				put.removeHeaders(HTTP.EXPECT_DIRECTIVE);
+				if (entity.isRepeatable()) {
+					this.execute(put, new VoidResponseHandler());
+					return;
+				}
+			}
+			
+			throw e;
+		}
+	}
+	
 	/**
 	 * (non-Javadoc)
 	 * 
@@ -823,6 +866,7 @@ public class SardineImpl implements Sardine {
 
 		HttpConnectionParams.setTcpNoDelay(params, true);
 		HttpConnectionParams.setSocketBufferSize(params, 8192);
+		HttpConnectionParams.setConnectionTimeout(params, 10*1000); //10 seconds
 		return params;
 	}
 
